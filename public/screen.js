@@ -32,15 +32,19 @@
   function setVisible(id, yes) { el(id).classList.toggle('hidden', !yes); }
   function showMode(mode) {
     const screen = mode === 'screen';
+    const sync = mode === 'sync';
+    const netflix = mode === 'netflix';
     setVisible('screen-section', screen);
-    setVisible('sync-section', !screen);
-    el('mode-screen').classList.toggle('selected', screen);
-    el('mode-sync').classList.toggle('selected', !screen);
-    el('mode-screen').setAttribute('aria-selected', String(screen));
-    el('mode-sync').setAttribute('aria-selected', String(!screen));
+    setVisible('sync-section', sync);
+    setVisible('netflix-section', netflix);
+    for (const [key, active] of [['screen', screen], ['sync', sync], ['netflix', netflix]]) {
+      el('mode-'+key).classList.toggle('selected', active);
+      el('mode-'+key).setAttribute('aria-selected', String(active));
+    }
   }
   el('mode-screen').addEventListener('click', () => showMode('screen'));
   el('mode-sync').addEventListener('click', () => showMode('sync'));
+  el('mode-netflix').addEventListener('click', () => showMode('netflix'));
 
   function signal(kind, ownerId, to, data) {
     if (joinedCode && socket.connected) socket.emit('rtc-signal', {kind, ownerId, to, data});
@@ -303,9 +307,28 @@
     el('listen-button').textContent='🔊 الصوت مفعّل';
   }
   el('listen-button').addEventListener('click',enableAudio);
-  el('fullscreen-button').addEventListener('click', async()=>{
-    try { if(document.fullscreenElement)await document.exitFullscreen();else if(stageVideo.webkitEnterFullscreen)stageVideo.webkitEnterFullscreen();else await el('screen-stage').requestFullscreen(); }
-    catch{showToast('ملء الشاشة غير مدعوم هنا');}
+  // iPhone Safari يسمح بملء شاشة عنصر الفيديو نفسه؛ CSS cinema-mode يعمل كبديل للواجهة.
+  function leaveCinema(){document.body.classList.remove('cinema-mode');}
+  el('cinema-close').addEventListener('click',leaveCinema);
+  el('sync-cinema-close').addEventListener('click',leaveCinema);
+  window.addEventListener('keydown', ev=>{if(ev.key==='Escape')leaveCinema();});
+  async function enterCinema(stage, video) {
+    if (document.fullscreenElement) { await document.exitFullscreen(); return; }
+    if (document.body.classList.contains('cinema-mode')) {leaveCinema();return;}
+    if (video && video.srcObject && typeof video.webkitEnterFullscreen==='function') {
+      try {video.webkitEnterFullscreen();return;} catch {}
+    }
+    if (typeof stage.requestFullscreen==='function') {
+      try {await stage.requestFullscreen();return;} catch {}
+    }
+    document.body.classList.add('cinema-mode');
+    showToast('وضع السينما: ملأنا مساحة الصفحة. لإخفاء شريط Safari، أضف التطبيق للشاشة الرئيسية.');
+  }
+  el('fullscreen-button').addEventListener('click',()=>enterCinema(el('screen-stage'),stageVideo));
+  el('sync-fullscreen').addEventListener('click',()=>{
+    const video=el('html-player');
+    // اليوتيوب نفسه قد يعرض زر الملء الأصلي؛ للـ iframe هنا نستعمل وضع السينما.
+    enterCinema(el('player-wrap'),video.classList.contains('hidden') ? null : video);
   });
   async function toggleMic() {
     if(micStream){stopMic();return;}

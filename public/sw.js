@@ -1,7 +1,7 @@
 'use strict';
 // Network-first: app updates are preferred; cache only the public shell for offline viewing.
-const CACHE = 'cinema-sawa-v2-shell';
-const SHELL = ['/', '/index.html', '/app.js', '/screen.js', '/realtime.js', '/manifest.webmanifest', '/icon-192.png'];
+const CACHE = 'cinema-sawa-v21-shell';
+const SHELL = ['/', '/index.html', '/app.js', '/screen.js', '/netflix.js', '/realtime.js', '/manifest.webmanifest', '/icon-192.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting()));
 });
