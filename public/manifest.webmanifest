@@ -1,0 +1,12 @@
+{
+  "name": "سينما سوا – LIVE",
+  "short_name": "سينما سوا",
+  "description": "مشاركة شاشة وصوت وغرف مشاهدة جماعية ودردشة",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0c1020",
+  "theme_color": "#11162b",
+  "icons": [{"src":"/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},{"src":"/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]
+}
