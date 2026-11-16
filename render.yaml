@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: cinema-sawa
+    runtime: node
+    plan: free
+    buildCommand: echo ready
+    startCommand: npm start
+    healthCheckPath: /health
